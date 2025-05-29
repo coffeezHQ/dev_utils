@@ -38,7 +38,7 @@ sleep 2
 echo "🧾 Running DB Migrations..."
 osascript <<EOF
 tell application "Terminal"
-    do script "cd \"$COFFEEZ_ROOT/db_migrations\" && npm install && npm run migrate:up && npm run mate:up"
+    do script "cd \"$COFFEEZ_ROOT/db-migrations\" && npm install && npm run migrate:up && npm run mate:up"
 end tell
 EOF
 
@@ -47,7 +47,7 @@ sleep 2
 echo "🧾 Running Creators Studio API..."
 osascript <<EOF
 tell application "Terminal"
-    do script "cd \"$COFFEEZ_ROOT/creaters_studio_api\" && npm install && npm run local"
+    do script "cd \"$COFFEEZ_ROOT/creaters-studio-api\" && npm install && npm run local"
 end tell
 EOF
 
@@ -56,7 +56,7 @@ sleep 2
 echo "🧾 Running Creators Studio App..."
 osascript <<EOF
 tell application "Terminal"
-    do script "cd \"$COFFEEZ_ROOT/creaters_studio\" && npm install && npm run dev"
+    do script "cd \"$COFFEEZ_ROOT/creaters-studio\" && npm install && npm run dev"
 end tell
 EOF
 

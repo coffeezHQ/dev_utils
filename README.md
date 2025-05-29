@@ -8,6 +8,7 @@ Update .env
 KAFKA_INSTALL_PATH=/opt/kafka
 COFFEEZ_ROOT=/Users/someuser/Go/src/github.com/coffeezHQ
 ```
+
 Make it executable:
 
 ```bash
@@ -16,5 +17,6 @@ chmod +x scripts/start_all_services.sh
 
 Run:
 ```bash
+source .env
 ./scripts/start_all_services.sh
 ```
