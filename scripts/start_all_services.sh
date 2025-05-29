@@ -7,7 +7,7 @@ set +a
 
 # Validate argument
 if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 [up|down]"
+  echo "Usage: $0 [up|down|install]"
   exit 1
 fi
 
@@ -19,8 +19,76 @@ start_in_new_tab() {
   osascript -e "tell application \"Terminal\" to do script \"${CMD//\"/\\\"}\""
 }
 
-if [[ "$ACTION" == "up" ]]; then
+if [[ "$ACTION" == "install" ]]; then
+  echo "🔧 Installing dependencies..."
+
+  # Install ClickHouse
+  if ! command -v clickhouse &> /dev/null; then
+    echo "➡️  Installing ClickHouse via Homebrew (no quarantine)..."
+    brew install --cask clickhouse || brew install --no-quarantine clickhouse
+    CLICKHOUSE_PATH=$(which clickhouse)
+    if [[ -n "$CLICKHOUSE_PATH" ]]; then
+      echo "➡️  Removing quarantine attribute from ClickHouse binary..."
+      xattr -d com.apple.quarantine "$CLICKHOUSE_PATH"
+      echo "✅ ClickHouse installed at $CLICKHOUSE_PATH"
+    else
+      echo "❌ ClickHouse installation failed. Please check Homebrew output."
+    fi
+  else
+    echo "✅ ClickHouse already installed at $(which clickhouse)"
+  fi
+
+  # Install Kafka
+  if [[ ! -d "/opt/kafka" ]]; then
+    echo "➡️  Downloading Kafka 3.5.1..."
+    curl -O https://archive.apache.org/dist/kafka/3.5.1/kafka_2.13-3.5.1.tgz
+    echo "➡️  (Optional) Verifying integrity..."
+    shasum -a 512 kafka_2.13-3.5.1.tgz
+    echo "➡️  Extracting Kafka..."
+    tar -xzf kafka_2.13-3.5.1.tgz
+    sudo mv kafka_2.13-3.5.1 /opt/kafka-3.5.1
+    sudo ln -s /opt/kafka-3.5.1 /opt/kafka
+    echo 'export PATH="/opt/kafka/bin:$PATH"' >> ~/.zprofile
+    source ~/.zprofile
+    echo "✅ Kafka installed at /opt/kafka"
+  else
+    echo "✅ Kafka already installed at /opt/kafka"
+  fi
+
+  # Install MySQL
+  if ! command -v mysql &> /dev/null; then
+    echo "➡️  Installing MySQL via Homebrew..."
+    brew install mysql
+    echo "✅ MySQL installed."
+  else
+    echo "✅ MySQL already installed at $(which mysql)"
+  fi
+
+  # Install Redis
+  if ! command -v redis-server &> /dev/null; then
+    echo "➡️  Installing Redis via Homebrew..."
+    brew install redis
+    echo "✅ Redis installed."
+  else
+    echo "✅ Redis already installed at $(which redis-server)"
+  fi
+
+  # Install Node.js and npm
+  if ! command -v node &> /dev/null; then
+    echo "➡️  Installing Node.js (includes npm) via Homebrew..."
+    brew install node
+    echo "✅ Node.js and npm installed."
+  else
+    echo "✅ Node.js already installed at $(which node)"
+    echo "✅ npm already installed at $(which npm)"
+  fi
+
+  echo "🔧 Installation complete. Please restart your terminal or run: source ~/.zprofile"
+  exit 0
+
+elif [[ "$ACTION" == "up" ]]; then
   mkdir -p "$COFFEEZ_ROOT/logs"
+  chmod 775 "$COFFEEZ_ROOT/logs"
 
   # Check Kafka path or fallback to brew
   if [[ -z "$KAFKA_INSTALL_PATH" ]]; then
@@ -47,6 +115,11 @@ if [[ "$ACTION" == "up" ]]; then
   # Start MySQL
   echo "✅ Starting MySQL..."
   brew services start mysql
+  sleep 5
+
+  # Start ClickHouse
+  echo "✅ Starting ClickHouse... (logs: $COFFEEZ_ROOT/logs/clickhouse.log)"
+  (cd "$COFFEEZ_ROOT" && ./dev_utils/bin/clickhouse server) > "$COFFEEZ_ROOT/logs/clickhouse.log" 2>&1 &
   sleep 5
 
   # Start Kafka Consumer
@@ -76,6 +149,7 @@ if [[ "$ACTION" == "up" ]]; then
   echo "  tail -f $COFFEEZ_ROOT/logs/creators-studio.log"
   echo "  tail -f $COFFEEZ_ROOT/logs/zookeeper.log"
   echo "  tail -f $COFFEEZ_ROOT/logs/kafka.log"
+  echo "  tail -f $COFFEEZ_ROOT/logs/clickhouse.log"
 
 elif [[ "$ACTION" == "down" ]]; then
 
@@ -109,6 +183,9 @@ elif [[ "$ACTION" == "down" ]]; then
     "$KAFKA_INSTALL_PATH/bin/zookeeper-server-stop.sh"
   fi
 
+  echo "🛑 Stopping ClickHouse..."
+  pkill -f "clickhouse server"
+
   echo "🧹 Clearing all logs..."
   rm -f "$COFFEEZ_ROOT/logs"/*.log
 
@@ -116,6 +193,6 @@ elif [[ "$ACTION" == "down" ]]; then
 
 else
   echo "❌ Invalid argument: $ACTION"
-  echo "Usage: $0 [up|down]"
+  echo "Usage: $0 [up|down|install]"
   exit 1
 fi
