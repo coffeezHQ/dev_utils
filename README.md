@@ -20,7 +20,20 @@ Run:
 ./scripts/start_all_services.sh up
 ```
 
-For taking down all the services:
+- All services will start in the background.
+- Logs for each service will be written to `$COFFEEZ_ROOT/logs/` as separate `.log` files.
+- To view logs for a service, use:
+  ```bash
+  tail -f $COFFEEZ_ROOT/logs/<service>.log
+  # e.g.
+  tail -f $COFFEEZ_ROOT/logs/creators-studio-api.log
+  tail -f $COFFEEZ_ROOT/logs/creators-studio.log
+  tail -f $COFFEEZ_ROOT/logs/db-migrations.log
+  tail -f $COFFEEZ_ROOT/logs/kafka-consumer.log
+  ```
+
+For taking down all the services and clearing logs:
 ```bash
 ./scripts/start_all_services.sh down
 ```
+- This will stop all services and delete all log files in `$COFFEEZ_ROOT/logs/`.

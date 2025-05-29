@@ -20,6 +20,7 @@ start_in_new_tab() {
 }
 
 if [[ "$ACTION" == "up" ]]; then
+  mkdir -p "$COFFEEZ_ROOT/logs"
 
   # Check Kafka path or fallback to brew
   if [[ -z "$KAFKA_INSTALL_PATH" ]]; then
@@ -34,12 +35,12 @@ if [[ "$ACTION" == "up" ]]; then
       exit 1
     fi
   else
-    echo "✅ Starting Zookeeper via Terminal tab..."
-    start_in_new_tab "echo 'Starting Zookeeper...'; \"$KAFKA_INSTALL_PATH/bin/zookeeper-server-start.sh\" \"$KAFKA_INSTALL_PATH/config/zookeeper.properties\""
+    echo "✅ Starting Zookeeper in background... (logs: $COFFEEZ_ROOT/logs/zookeeper.log)"
+    ("$KAFKA_INSTALL_PATH/bin/zookeeper-server-start.sh" "$KAFKA_INSTALL_PATH/config/zookeeper.properties") > "$COFFEEZ_ROOT/logs/zookeeper.log" 2>&1 &
     sleep 5
 
-    echo "✅ Starting Kafka via Terminal tab..."
-    start_in_new_tab "echo 'Starting Kafka...'; \"$KAFKA_INSTALL_PATH/bin/kafka-server-start.sh\" \"$KAFKA_INSTALL_PATH/config/server.properties\""
+    echo "✅ Starting Kafka in background... (logs: $COFFEEZ_ROOT/logs/kafka.log)"
+    ("$KAFKA_INSTALL_PATH/bin/kafka-server-start.sh" "$KAFKA_INSTALL_PATH/config/server.properties") > "$COFFEEZ_ROOT/logs/kafka.log" 2>&1 &
     sleep 5
   fi
 
@@ -49,25 +50,32 @@ if [[ "$ACTION" == "up" ]]; then
   sleep 5
 
   # Start Kafka Consumer
-  echo "📦 Starting Kafka Consumer..."
-  start_in_new_tab "cd \"$COFFEEZ_ROOT/kafka-consumer\" && npm install && npm run local"
+  echo "📦 Starting Kafka Consumer... (logs: $COFFEEZ_ROOT/logs/kafka-consumer.log)"
+  (cd "$COFFEEZ_ROOT/kafka-consumer" && npm install && npm run local) > "$COFFEEZ_ROOT/logs/kafka-consumer.log" 2>&1 &
   sleep 2
 
   # DB Migrations
-  echo "🧾 Running DB Migrations..."
-  start_in_new_tab "cd \"$COFFEEZ_ROOT/db-migrations\" && npm install && npm run migrate:up && npm run mate:up"
+  echo "🧾 Running DB Migrations... (logs: $COFFEEZ_ROOT/logs/db-migrations.log)"
+  (cd "$COFFEEZ_ROOT/db-migrations" && npm install && npm run migrate:up && npm run mate:up) > "$COFFEEZ_ROOT/logs/db-migrations.log" 2>&1 &
   sleep 2
 
   # Creators Studio API
-  echo "🚀 Starting Creators Studio API..."
-  start_in_new_tab "cd \"$COFFEEZ_ROOT/creators-studio-api\" && npm install && npm run local"
+  echo "🚀 Starting Creators Studio API... (logs: $COFFEEZ_ROOT/logs/creators-studio-api.log)"
+  (cd "$COFFEEZ_ROOT/creators-studio-api" && npm install && npm run local) > "$COFFEEZ_ROOT/logs/creators-studio-api.log" 2>&1 &
   sleep 2
 
   # Creators Studio Frontend App
-  echo "🎨 Starting Creators Studio App..."
-  start_in_new_tab "cd \"$COFFEEZ_ROOT/creators-studio\" && npm install && npm run dev"
+  echo "🎨 Starting Creators Studio App... (logs: $COFFEEZ_ROOT/logs/creators-studio.log)"
+  (cd "$COFFEEZ_ROOT/creators-studio" && npm install && npm run dev) > "$COFFEEZ_ROOT/logs/creators-studio.log" 2>&1 &
 
-  echo "🎉 All services are being started in new terminal tabs."
+  echo "🎉 All services are being started in the background."
+  echo "To view logs:"
+  echo "  tail -f $COFFEEZ_ROOT/logs/kafka-consumer.log"
+  echo "  tail -f $COFFEEZ_ROOT/logs/db-migrations.log"
+  echo "  tail -f $COFFEEZ_ROOT/logs/creators-studio-api.log"
+  echo "  tail -f $COFFEEZ_ROOT/logs/creators-studio.log"
+  echo "  tail -f $COFFEEZ_ROOT/logs/zookeeper.log"
+  echo "  tail -f $COFFEEZ_ROOT/logs/kafka.log"
 
 elif [[ "$ACTION" == "down" ]]; then
 
@@ -88,11 +96,21 @@ elif [[ "$ACTION" == "down" ]]; then
   echo "🛑 Stopping MySQL..."
   brew services stop mysql
 
-  echo "🛑 Stopping Kafka..."
-  brew services stop kafka
+  # Stop Kafka and Zookeeper based on how they were started
+  if [[ -z "$KAFKA_INSTALL_PATH" ]]; then
+    echo "🛑 Stopping Kafka via Homebrew..."
+    brew services stop kafka
+    echo "🛑 Stopping Zookeeper via Homebrew..."
+    brew services stop zookeeper
+  else
+    echo "🛑 Stopping Kafka via stop script..."
+    "$KAFKA_INSTALL_PATH/bin/kafka-server-stop.sh"
+    echo "🛑 Stopping Zookeeper via stop script..."
+    "$KAFKA_INSTALL_PATH/bin/zookeeper-server-stop.sh"
+  fi
 
-  echo "🛑 Stopping Zookeeper..."
-  brew services stop zookeeper
+  echo "🧹 Clearing all logs..."
+  rm -f "$COFFEEZ_ROOT/logs"/*.log
 
   echo "✅ All services have been stopped."
 
