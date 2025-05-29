@@ -1,4 +1,26 @@
-# dev_utils
+# Dev Utils for Coffeez
+
+## Installation (One-time setup)
+
+This script can install all required dependencies for you. **Homebrew is required** (https://brew.sh/).
+
+To install ClickHouse, Kafka, MySQL, Node.js (with npm), and Redis, run:
+
+```bash
+./scripts/start_all_services.sh install
+```
+
+- This will:
+  - Install ClickHouse (via Homebrew, removes quarantine attribute if needed)
+  - Install Kafka (downloads, extracts, and symlinks to /opt/kafka, updates your PATH)
+  - Install MySQL (via Homebrew)
+  - Install Redis (via Homebrew)
+  - Install Node.js and npm (via Homebrew)
+- If a dependency is already installed, it will be skipped.
+- After installation, **restart your terminal** or run:
+  ```bash
+  source ~/.zprofile
+  ```
 
 ## How to Run setup all services
 This script assumes you are cloning all the required repos creators-studio, creators-studio-api, db-migrations, kafka-consumer in the $COFFEEZ_ROOT directory configured in .env file
