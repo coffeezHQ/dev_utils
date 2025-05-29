@@ -119,7 +119,7 @@ elif [[ "$ACTION" == "up" ]]; then
 
   # Start ClickHouse
   echo "✅ Starting ClickHouse... (logs: $COFFEEZ_ROOT/logs/clickhouse.log)"
-  (cd "$COFFEEZ_ROOT" && ./dev_utils/bin/clickhouse server) > "$COFFEEZ_ROOT/logs/clickhouse.log" 2>&1 &
+  (clickhouse server) > "$COFFEEZ_ROOT/logs/clickhouse.log" 2>&1 &
   sleep 5
 
   # Start Kafka Consumer
@@ -184,7 +184,7 @@ elif [[ "$ACTION" == "down" ]]; then
   fi
 
   echo "🛑 Stopping ClickHouse..."
-  pkill -f "clickhouse server"
+  pkill -f "clickhouse"
 
   echo "🧹 Clearing all logs..."
   rm -f "$COFFEEZ_ROOT/logs"/*.log
