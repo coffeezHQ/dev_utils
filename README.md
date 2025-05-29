@@ -17,6 +17,5 @@ chmod +x scripts/start_all_services.sh
 
 Run:
 ```bash
-source .env
 ./scripts/start_all_services.sh
 ```
