@@ -17,5 +17,10 @@ chmod +x scripts/start_all_services.sh
 
 Run:
 ```bash
-./scripts/start_all_services.sh
+./scripts/start_all_services.sh up
+```
+
+For taking down all the services:
+```bash
+./scripts/start_all_services.sh down
 ```
