@@ -25,10 +25,18 @@ else
     exit 1
   fi
   echo "✅ Starting Zookeeper..."
-  "$KAFKA_INSTALL_PATH/bin/zookeeper-server-start.sh" "$KAFKA_INSTALL_PATH/config/zookeeper.properties" &
+  osascript <<EOF
+tell application "Terminal"
+    do script "echo 'Starting Zookeeper...'; \"$KAFKA_INSTALL_PATH/bin/zookeeper-server-start.sh\" \"$KAFKA_INSTALL_PATH/config/zookeeper.properties\""
+end tell
+EOF
   sleep 5
   echo "✅ Starting Kafka..."
-  "$KAFKA_INSTALL_PATH/bin/kafka-server-start.sh" "$KAFKA_INSTALL_PATH/config/server.properties" &
+  osascript <<EOF
+tell application "Terminal"
+    do script "echo 'Starting Kafka...'; \"$KAFKA_INSTALL_PATH/bin/kafka-server-start.sh\" \"$KAFKA_INSTALL_PATH/config/server.properties\""
+end tell
+EOF
   sleep 5
 fi
 
@@ -72,3 +80,37 @@ end tell
 EOF
 
 echo "🎉 All services are being started..."
+
+# Argument parsing
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 [up|down]"
+  exit 1
+fi
+
+ACTION=$1
+
+if [[ "$ACTION" == "up" ]]; then
+  # ... existing up logic ...
+  # (move all current service start logic here)
+
+elif [[ "$ACTION" == "down" ]]; then
+  echo "🛑 Stopping Creators Studio App..."
+  pkill -f "npm run dev"
+  echo "🛑 Stopping Creators Studio API..."
+  pkill -f "creaters-studio-api"
+  echo "🛑 Stopping DB Migrations..."
+  pkill -f "db-migrations"
+  echo "🛑 Stopping Kafka Consumer..."
+  pkill -f "kafka-consumer"
+  echo "🛑 Stopping MySQL..."
+  brew services stop mysql
+  echo "🛑 Stopping Kafka..."
+  brew services stop kafka
+  echo "🛑 Stopping Zookeeper..."
+  brew services stop zookeeper
+  echo "🛑 All services have been stopped."
+else
+  echo "Invalid argument: $ACTION"
+  echo "Usage: $0 [up|down]"
+  exit 1
+fi
