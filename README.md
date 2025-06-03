@@ -28,7 +28,7 @@ This script assumes you are cloning all the required repos creators-studio, crea
 Update .env
 ```
 KAFKA_INSTALL_PATH=/opt/kafka
-COFFEEZ_ROOT=/Users/someuser/Go/src/github.com/coffeezHQ
+COFFEEZ_ROOT=$HOME/Go/src/github.com/coffeezHQ
 ```
 
 Make it executable:
@@ -57,5 +57,5 @@ Run:
 For taking down all the services and clearing logs:
 ```bash
 ./scripts/start_all_services.sh down
-```
-- This will stop all services and delete all log files in `$COFFEEZ_ROOT/logs/`.
+```- This will stop all services and delete all log files in `$COFFEEZ_ROOT/logs/`.
+

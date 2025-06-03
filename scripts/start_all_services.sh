@@ -2,6 +2,7 @@
 
 # Load environment variables
 set -a
+source ~/.zprofile
 source .env
 set +a
 
@@ -119,7 +120,7 @@ elif [[ "$ACTION" == "up" ]]; then
 
   # Start ClickHouse
   echo "✅ Starting ClickHouse... (logs: $COFFEEZ_ROOT/logs/clickhouse.log)"
-  (clickhouse server) > "$COFFEEZ_ROOT/logs/clickhouse.log" 2>&1 &
+  (clickhouse server --data-path="$COFFEEZ_ROOT/clickhouse_data") > "$COFFEEZ_ROOT/logs/clickhouse.log" 2>&1 &
   sleep 5
 
   # Start Kafka Consumer
