@@ -4,8 +4,8 @@ A collection of utility scripts for development environment setup and management
 
 ## Prerequisites
 
-- macOS (tested on macOS 22.3.0)
-- Homebrew
+- macOS (tested on macOS 22.3.0) or Ubuntu (tested on Ubuntu 22.04 LTS)
+- Homebrew (for macOS)
 - Node.js (v18 or later)
 - Docker Desktop
 - Go (v1.21 or later)
@@ -18,19 +18,33 @@ git clone git@github.com:coffeezhq/dev_utils.git
 cd dev_utils
 ```
 
-2. Run the setup script:
+2. Create a `.env` file with the following content:
 ```bash
-./scripts/setup.sh
+KAFKA_INSTALL_PATH=/opt/kafka
+COFFEEZ_ROOT=$HOME/Go/src/github.com/coffeezHQ
 ```
 
-This will:
-- Install required Homebrew packages
-- Set up required directories
-- Clone all necessary repositories
-- Install dependencies
-- Start all required services
+3. Run the setup script:
+```bash
+./scripts/start_all_services.sh setup
+```
+
+4. Start all services:
+```bash
+./scripts/start_all_services.sh start
+```
 
 ## Available Commands
+
+### Setup Environment
+```bash
+./scripts/start_all_services.sh setup
+```
+This command will:
+- Create the COFFEEZ_ROOT directory if it doesn't exist
+- Clone all required repositories if they don't exist
+- Install required services only if they're not already installed
+- Set up necessary environment variables
 
 ### Start All Services
 ```bash
@@ -75,21 +89,6 @@ This command will:
 - Highlight any errors in red
 - Show the last 50 lines of each log file
 
-## Directory Structure
-
-```
-dev_utils/
-├── scripts/
-│   ├── setup.sh
-│   └── start_all_services.sh
-├── logs/
-│   ├── kafka-consumer.log
-│   ├── db-migrations.log
-│   ├── creators-studio-api.log
-│   └── creators-studio.log
-└── README.md
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -119,16 +118,3 @@ All service logs are stored in the `logs/` directory:
 - `db-migrations.log`: Database migration logs
 - `creators-studio-api.log`: API service logs
 - `creators-studio.log`: Frontend application logs
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-

@@ -1,0 +1,106 @@
+name: Test Scripts
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.COFFEEZ_PAT }}
+          fetch-depth: 0
+
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://${{ secrets.COFFEEZ_PAT }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Set up environment variables
+        run: |
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
+          echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
+
+      - name: Run setup script
+        run: |
+          bash scripts/setup_ubuntu.sh
+          if [ $? -ne 0 ]; then
+            echo "::error::Setup script failed"
+            exit 1
+          fi
+
+      - name: Run start script
+        run: |
+          bash scripts/start_all_services.sh start
+          if [ $? -ne 0 ]; then
+            echo "::error::Start script failed"
+            exit 1
+          fi
+
+      - name: Run stop script
+        run: |
+          bash scripts/start_all_services.sh stop
+          if [ $? -ne 0 ]; then
+            echo "::error::Stop script failed"
+            exit 1
+          fi
+
+      - name: Run reset script
+        run: |
+          bash scripts/start_all_services.sh reset
+          if [ $? -ne 0 ]; then
+            echo "::error::Reset script failed"
+            exit 1
+          fi
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.COFFEEZ_PAT }}
+          fetch-depth: 0
+
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://${{ secrets.COFFEEZ_PAT }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Set up environment variables
+        run: |
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
+          echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
+
+      - name: Run setup script
+        run: |
+          bash scripts/setup_macos.sh
+          if [ $? -ne 0 ]; then
+            echo "::error::Setup script failed"
+            exit 1
+          fi
+
+      - name: Run start script
+        run: |
+          bash scripts/start_all_services.sh start
+          if [ $? -ne 0 ]; then
+            echo "::error::Start script failed"
+            exit 1
+          fi
+
+      - name: Run stop script
+        run: |
+          bash scripts/start_all_services.sh stop
+          if [ $? -ne 0 ]; then
+            echo "::error::Stop script failed"
+            exit 1
+          fi
+
+      - name: Run reset script
+        run: |
+          bash scripts/start_all_services.sh reset
+          if [ $? -ne 0 ]; then
+            echo "::error::Reset script failed"
+            exit 1
+          fi 

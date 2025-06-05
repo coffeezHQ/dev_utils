@@ -12,9 +12,11 @@ fi
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS="macos"
   SERVICE_CMD="brew services"
+  SETUP_SCRIPT="scripts/setup_macos.sh"
 elif [[ -f /etc/lsb-release ]] && grep -q "Ubuntu" /etc/lsb-release; then
   OS="ubuntu"
   SERVICE_CMD="sudo systemctl"
+  SETUP_SCRIPT="scripts/setup_ubuntu.sh"
 else
   echo "Error: Unsupported operating system"
   exit 1
@@ -261,7 +263,15 @@ elif [[ "$ACTION" == "reset" ]]; then
   echo "  tail -f $COFFEEZ_ROOT/logs/creators-studio.log"
 elif [[ "$ACTION" == "logs" ]]; then
   check_logs
+elif [[ "$ACTION" == "setup" ]]; then
+  log "🔧 Running setup script for $OS..."
+  if [[ -f "$SETUP_SCRIPT" ]]; then
+    bash "$SETUP_SCRIPT"
+  else
+    log "❌ Setup script not found: $SETUP_SCRIPT"
+    exit 1
+  fi
 else
-  echo "Usage: $0 [start|stop|reset|logs]"
+  echo "Usage: $0 [start|stop|reset|logs|setup]"
   exit 1
 fi
