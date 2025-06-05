@@ -4,9 +4,24 @@ This repository contains various utilities and scripts to help with development 
 
 ## Prerequisites
 
-- Go 1.21 or later
-- Docker and Docker Compose
-- Make (for using Make commands)
+- Make
+
+### Installing Make
+
+#### macOS
+```bash
+# Using Homebrew
+brew install make
+
+# Or using Xcode Command Line Tools
+xcode-select --install
+```
+
+#### Ubuntu
+```bash
+sudo apt-get update
+sudo apt-get install make
+```
 
 ## Quick Start
 
@@ -21,7 +36,7 @@ make all
 # Setup the development environment
 make setup
 
-# Start services in detached mode
+# Start services
 make up
 
 # Stop all services
