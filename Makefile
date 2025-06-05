@@ -7,7 +7,7 @@ all: setup start
 setup:
 	@echo "Setting up development environment..."
 	@if [ "$(shell uname)" = "Darwin" ]; then \
-		./scripts/setup_mac.sh; \
+		./scripts/setup_macos.sh; \
 	else \
 		./scripts/setup_ubuntu.sh; \
 	fi
@@ -15,22 +15,22 @@ setup:
 # Start all services
 start:
 	@echo "Starting all services..."
-	@./scripts/all_services.sh
+	@./scripts/all_services.sh start
 
 # Start services in detached mode
 up:
 	@echo "Starting services in detached mode..."
-	@./scripts/all_services.sh --detached
+	@./scripts/all_services.sh start
 
 # Stop all services
 down:
 	@echo "Stopping all services..."
-	@./scripts/all_services.sh --stop
+	@./scripts/all_services.sh stop
 
 # Reset the development environment
 reset:
 	@echo "Resetting development environment..."
-	@./scripts/all_services.sh --reset
+	@./scripts/all_services.sh reset
 
 # Help command
 help:
