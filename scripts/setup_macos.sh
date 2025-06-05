@@ -9,7 +9,7 @@ log() {
 
 # Function to check if a command exists
 command_exists() {
-  command -v "$1" &> /dev/null
+  command -v "$1" >/dev/null 2>&1
 }
 
 # Function to clone repository if it doesn't exist
@@ -26,13 +26,16 @@ clone_repo() {
   fi
 }
 
+# Check if COFFEEZ_ROOT is set, if not set a default value
+if [ -z "$COFFEEZ_ROOT" ]; then
+  COFFEEZ_ROOT="./"
+  log "⚠️  COFFEEZ_ROOT not set, using default: $COFFEEZ_ROOT"
+fi
+
 # Create COFFEEZ_ROOT directory if it doesn't exist
-if [[ ! -d "$COFFEEZ_ROOT" ]]; then
-  log "🔧 Creating COFFEEZ_ROOT directory at $COFFEEZ_ROOT..."
+if [ ! -d "$COFFEEZ_ROOT" ]; then
+  log "🔧 Creating COFFEEZ_ROOT directory at $COFFEEZ_ROOT"
   mkdir -p "$COFFEEZ_ROOT"
-  log "✅ Created COFFEEZ_ROOT directory"
-else
-  log "✅ COFFEEZ_ROOT directory already exists at $COFFEEZ_ROOT"
 fi
 
 # Clone repositories
@@ -41,10 +44,45 @@ clone_repo "creators-studio-api"
 clone_repo "db-migrations"
 clone_repo "kafka-consumer"
 
-# Check and install services only if they don't exist
+# Check if Homebrew is installed
+if ! command_exists brew; then
+  log "📦 Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+  log "✅ Homebrew already installed"
+fi
+
+# Install required packages
+log "📦 Installing required packages..."
+
+# Install curl if not present
+if ! command_exists curl; then
+  log "📦 Installing curl..."
+  brew install curl
+else
+  log "✅ curl already installed"
+fi
+
+# Install git if not present
+if ! command_exists git; then
+  log "📦 Installing git..."
+  brew install git
+else
+  log "✅ git already installed"
+fi
+
+# Install MySQL if not present
+if ! command_exists mysql; then
+  log "📦 Installing MySQL..."
+  brew install mysql
+else
+  log "✅ MySQL already installed at $(which mysql)"
+fi
+
+# Install ClickHouse if not present
 if ! command_exists clickhouse; then
-  log "🔧 Installing ClickHouse..."
-  brew install --cask clickhouse || brew install --no-quarantine clickhouse
+  log "📦 Installing ClickHouse..."
+  brew install clickhouse
   CLICKHOUSE_PATH=$(which clickhouse)
   if [[ -n "$CLICKHOUSE_PATH" ]]; then
     log "🔧 Removing quarantine attribute from ClickHouse binary..."
@@ -61,6 +99,32 @@ else
   log "✅ ClickHouse already installed at $(which clickhouse)"
 fi
 
+# Install Node.js if not present
+if ! command_exists node; then
+  log "📦 Installing Node.js..."
+  brew install node@18
+else
+  log "✅ Node.js already installed at $(which node)"
+  log "✅ npm already installed at $(which npm)"
+fi
+
+# Install unzip if not present
+if ! command_exists unzip; then
+  log "📦 Installing unzip..."
+  brew install unzip
+else
+  log "✅ unzip already installed"
+fi
+
+# Install Java if not present
+if ! command_exists java; then
+  log "📦 Installing Java..."
+  brew install openjdk@17
+else
+  log "✅ Java already installed"
+fi
+
+# Check if Kafka is already installed
 if [[ ! -d "/opt/kafka" ]]; then
   log "🔧 Installing Kafka..."
   log "🔧 Downloading Kafka 3.5.1..."
@@ -77,31 +141,6 @@ if [[ ! -d "/opt/kafka" ]]; then
   log "✅ Kafka installed at /opt/kafka"
 else
   log "✅ Kafka already installed at /opt/kafka"
-fi
-
-if ! command_exists mysql; then
-  log "🔧 Installing MySQL..."
-  brew install mysql
-  log "✅ MySQL installed."
-else
-  log "✅ MySQL already installed at $(which mysql)"
-fi
-
-if ! command_exists redis-server; then
-  log "🔧 Installing Redis..."
-  brew install redis
-  log "✅ Redis installed."
-else
-  log "✅ Redis already installed at $(which redis-server)"
-fi
-
-if ! command_exists node; then
-  log "🔧 Installing Node.js and npm..."
-  brew install node
-  log "✅ Node.js and npm installed."
-else
-  log "✅ Node.js already installed at $(which node)"
-  log "✅ npm already installed at $(which npm)"
 fi
 
 # Create logs directory
