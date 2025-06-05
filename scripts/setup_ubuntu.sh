@@ -116,16 +116,23 @@ if [ ! -d "$KAFKA_INSTALL_PATH" ]; then
     log "📦 Installing Kafka..."
     # Download and install Kafka
     KAFKA_VERSION="3.6.1"
-    KAFKA_DOWNLOAD_URL="https://downloads.apache.org/kafka/$KAFKA_VERSION/kafka_2.13-$KAFKA_VERSION.tgz"
+    KAFKA_DOWNLOAD_URL="https://archive.apache.org/dist/kafka/$KAFKA_VERSION/kafka_2.13-$KAFKA_VERSION.tgz"
     
     # Create directory for Kafka
     sudo mkdir -p "$KAFKA_INSTALL_PATH"
     
     # Download and extract Kafka
-    log "📥 Downloading Kafka..."
+    log "📥 Downloading Kafka from $KAFKA_DOWNLOAD_URL..."
     curl -L "$KAFKA_DOWNLOAD_URL" -o kafka.tgz
     if [ $? -ne 0 ]; then
         log "❌ Failed to download Kafka"
+        exit 1
+    fi
+    
+    # Verify the downloaded file is a valid gzip archive
+    if ! file kafka.tgz | grep -q "gzip compressed data"; then
+        log "❌ Downloaded file is not a valid gzip archive"
+        log "File type: $(file kafka.tgz)"
         exit 1
     fi
     
