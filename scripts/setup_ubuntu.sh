@@ -12,18 +12,17 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Function to clone repository if it doesn't exist
+# Function to clone a repository if it doesn't exist
 clone_repo() {
-  local repo=$1
-  local repo_path="$COFFEEZ_ROOT/$repo"
-  
-  if [[ ! -d "$repo_path" ]]; then
-    log "🔧 Cloning $repo repository..."
-    git clone "git@github.com:coffeezHQ/$repo.git" "$repo_path"
-    log "✅ Cloned $repo repository"
-  else
-    log "✅ Repository $repo already exists at $repo_path"
-  fi
+    local repo_name=$1
+    local repo_path="$COFFEEZ_ROOT/$repo_name"
+    
+    if [ ! -d "$repo_path" ]; then
+        log "📦 Cloning $repo_name repository..."
+        git clone "https://github.com/coffeezHQ/$repo_name.git" "$repo_path"
+    else
+        log "✅ $repo_name repository already exists."
+    fi
 }
 
 # Check if COFFEEZ_ROOT is set, if not set a default value
