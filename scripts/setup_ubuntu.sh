@@ -111,30 +111,45 @@ else
   log "✅ Java already installed"
 fi
 
-KAFKA_VERSION="3.6.1"
-KAFKA_SCALA_VERSION="2.13"
-KAFKA_DIR="/opt/kafka"
-KAFKA_TGZ="kafka_${KAFKA_SCALA_VERSION}-${KAFKA_VERSION}.tgz"
-KAFKA_URL="https://downloads.apache.org/kafka/${KAFKA_VERSION}/${KAFKA_TGZ}"
-
-if [[ ! -d "$KAFKA_DIR" ]]; then
-  log "📦 Installing Kafka..."
-  curl -L "$KAFKA_URL" -o kafka.tgz
-  sudo mkdir -p "$KAFKA_DIR"
-  sudo tar -xzf kafka.tgz -C "$KAFKA_DIR" --strip-components=1
-  rm kafka.tgz
-  log "✅ Kafka installed at $KAFKA_DIR"
+# Check if Kafka is already installed
+if [ ! -d "$KAFKA_INSTALL_PATH" ]; then
+    log "📦 Installing Kafka..."
+    # Download and install Kafka
+    KAFKA_VERSION="3.6.1"
+    KAFKA_DOWNLOAD_URL="https://downloads.apache.org/kafka/$KAFKA_VERSION/kafka_2.13-$KAFKA_VERSION.tgz"
+    
+    # Create directory for Kafka
+    sudo mkdir -p "$KAFKA_INSTALL_PATH"
+    
+    # Download and extract Kafka
+    log "📥 Downloading Kafka..."
+    curl -L "$KAFKA_DOWNLOAD_URL" -o kafka.tgz
+    if [ $? -ne 0 ]; then
+        log "❌ Failed to download Kafka"
+        exit 1
+    fi
+    
+    log "📦 Extracting Kafka..."
+    sudo tar -xzf kafka.tgz -C "$KAFKA_INSTALL_PATH" --strip-components=1
+    if [ $? -ne 0 ]; then
+        log "❌ Failed to extract Kafka"
+        exit 1
+    fi
+    
+    # Clean up
+    rm kafka.tgz
+    
+    # Set permissions
+    sudo chown -R $USER:$USER "$KAFKA_INSTALL_PATH"
+    
+    # Add Kafka to PATH
+    echo "export PATH=\$PATH:$KAFKA_INSTALL_PATH/bin" >> ~/.bashrc
+    source ~/.bashrc
+    
+    log "✅ Kafka installed successfully at $KAFKA_INSTALL_PATH"
 else
-  log "✅ Kafka already installed at $KAFKA_DIR"
+    log "✅ Kafka is already installed at $KAFKA_INSTALL_PATH"
 fi
-
-if ! grep -q 'export PATH="/opt/kafka/bin:$PATH"' ~/.bashrc; then
-  echo 'export PATH="/opt/kafka/bin:$PATH"' >> ~/.bashrc
-  log "🔧 Added Kafka to PATH in ~/.bashrc"
-fi
-
-log "🔧 Ensuring permissions for Kafka directory..."
-sudo chown -R $USER:$USER "$KAFKA_DIR"
 
 # Create logs directory
 log "📁 Creating logs directory..."
