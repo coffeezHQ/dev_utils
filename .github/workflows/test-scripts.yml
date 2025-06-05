@@ -15,6 +15,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Configure Git credentials
+        run: |
+          git config --global credential.helper store
+          echo "https://${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
+
       - name: Set up environment variables
         run: |
           echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
@@ -39,6 +44,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+      - name: Configure Git credentials
+        run: |
+          git config --global credential.helper store
+          echo "https://${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
 
       - name: Set up environment variables
         run: |
