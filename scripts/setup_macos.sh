@@ -7,11 +7,43 @@ log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
 
-log "🔧 Updating Homebrew..."
-brew update
+# Function to check if a command exists
+command_exists() {
+  command -v "$1" &> /dev/null
+}
 
-log "🔧 Installing ClickHouse..."
-if ! command -v clickhouse &> /dev/null; then
+# Function to clone repository if it doesn't exist
+clone_repo() {
+  local repo=$1
+  local repo_path="$COFFEEZ_ROOT/$repo"
+  
+  if [[ ! -d "$repo_path" ]]; then
+    log "🔧 Cloning $repo repository..."
+    git clone "git@github.com:coffeezHQ/$repo.git" "$repo_path"
+    log "✅ Cloned $repo repository"
+  else
+    log "✅ Repository $repo already exists at $repo_path"
+  fi
+}
+
+# Create COFFEEZ_ROOT directory if it doesn't exist
+if [[ ! -d "$COFFEEZ_ROOT" ]]; then
+  log "🔧 Creating COFFEEZ_ROOT directory at $COFFEEZ_ROOT..."
+  mkdir -p "$COFFEEZ_ROOT"
+  log "✅ Created COFFEEZ_ROOT directory"
+else
+  log "✅ COFFEEZ_ROOT directory already exists at $COFFEEZ_ROOT"
+fi
+
+# Clone repositories
+clone_repo "creators-studio"
+clone_repo "creators-studio-api"
+clone_repo "db-migrations"
+clone_repo "kafka-consumer"
+
+# Check and install services only if they don't exist
+if ! command_exists clickhouse; then
+  log "🔧 Installing ClickHouse..."
   brew install --cask clickhouse || brew install --no-quarantine clickhouse
   CLICKHOUSE_PATH=$(which clickhouse)
   if [[ -n "$CLICKHOUSE_PATH" ]]; then
@@ -29,8 +61,8 @@ else
   log "✅ ClickHouse already installed at $(which clickhouse)"
 fi
 
-log "🔧 Installing Kafka..."
 if [[ ! -d "/opt/kafka" ]]; then
+  log "🔧 Installing Kafka..."
   log "🔧 Downloading Kafka 3.5.1..."
   curl -O https://archive.apache.org/dist/kafka/3.5.1/kafka_2.13-3.5.1.tgz
   log "🔧 Extracting Kafka..."
@@ -47,24 +79,24 @@ else
   log "✅ Kafka already installed at /opt/kafka"
 fi
 
-log "🔧 Installing MySQL..."
-if ! command -v mysql &> /dev/null; then
+if ! command_exists mysql; then
+  log "🔧 Installing MySQL..."
   brew install mysql
   log "✅ MySQL installed."
 else
   log "✅ MySQL already installed at $(which mysql)"
 fi
 
-log "🔧 Installing Redis..."
-if ! command -v redis-server &> /dev/null; then
+if ! command_exists redis-server; then
+  log "🔧 Installing Redis..."
   brew install redis
   log "✅ Redis installed."
 else
   log "✅ Redis already installed at $(which redis-server)"
 fi
 
-log "🔧 Installing Node.js and npm..."
-if ! command -v node &> /dev/null; then
+if ! command_exists node; then
+  log "🔧 Installing Node.js and npm..."
   brew install node
   log "✅ Node.js and npm installed."
 else
@@ -72,7 +104,8 @@ else
   log "✅ npm already installed at $(which npm)"
 fi
 
+# Create logs directory
 log "🔧 Creating logs directory..."
-mkdir -p "$HOME/Go/src/github.com/coffeezHQ/logs"
+mkdir -p "$COFFEEZ_ROOT/logs"
 
-log "🔧 Setup complete! Please restart your terminal or run: source ~/.zprofile" 
+log "🔧 Setup complete! Please restart your terminal or run: source ~/.zprofile"

@@ -7,35 +7,97 @@ log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
 
-log "🔧 Updating package lists..."
-sudo apt-get update
+# Function to check if a command exists
+command_exists() {
+  command -v "$1" &> /dev/null
+}
 
-log "🔧 Installing prerequisites (curl, git, lsb-release)..."
-sudo apt-get install -y curl git lsb-release
+# Function to clone repository if it doesn't exist
+clone_repo() {
+  local repo=$1
+  local repo_path="$COFFEEZ_ROOT/$repo"
+  
+  if [[ ! -d "$repo_path" ]]; then
+    log "🔧 Cloning $repo repository..."
+    git clone "git@github.com:coffeezHQ/$repo.git" "$repo_path"
+    log "✅ Cloned $repo repository"
+  else
+    log "✅ Repository $repo already exists at $repo_path"
+  fi
+}
 
-log "🔧 Installing MySQL Server..."
-sudo apt-get install -y mysql-server
-
-log "🔧 Installing ClickHouse Server..."
-if ! command -v clickhouse-server &> /dev/null; then
-  sudo apt-get install -y clickhouse-server clickhouse-client
+# Create COFFEEZ_ROOT directory if it doesn't exist
+if [[ ! -d "$COFFEEZ_ROOT" ]]; then
+  log "🔧 Creating COFFEEZ_ROOT directory at $COFFEEZ_ROOT..."
+  mkdir -p "$COFFEEZ_ROOT"
+  log "✅ Created COFFEEZ_ROOT directory"
 else
-  log "✅ ClickHouse already installed."
+  log "✅ COFFEEZ_ROOT directory already exists at $COFFEEZ_ROOT"
 fi
 
-log "🔧 Installing Node.js (LTS) and npm..."
-if ! command -v node &> /dev/null; then
+# Clone repositories
+clone_repo "creators-studio"
+clone_repo "creators-studio-api"
+clone_repo "db-migrations"
+clone_repo "kafka-consumer"
+
+# Check and install services only if they don't exist
+if ! command_exists curl; then
+  log "🔧 Installing curl..."
+  sudo apt-get install -y curl
+else
+  log "✅ curl already installed"
+fi
+
+if ! command_exists git; then
+  log "🔧 Installing git..."
+  sudo apt-get install -y git
+else
+  log "✅ git already installed"
+fi
+
+if ! command_exists lsb-release; then
+  log "🔧 Installing lsb-release..."
+  sudo apt-get install -y lsb-release
+else
+  log "✅ lsb-release already installed"
+fi
+
+if ! command_exists mysql; then
+  log "🔧 Installing MySQL Server..."
+  sudo apt-get install -y mysql-server
+else
+  log "✅ MySQL already installed"
+fi
+
+if ! command_exists clickhouse-server; then
+  log "🔧 Installing ClickHouse Server..."
+  sudo apt-get install -y clickhouse-server clickhouse-client
+else
+  log "✅ ClickHouse already installed"
+fi
+
+if ! command_exists node; then
+  log "🔧 Installing Node.js (LTS) and npm..."
   curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
   sudo apt-get install -y nodejs
 else
-  log "✅ Node.js already installed."
+  log "✅ Node.js already installed"
 fi
 
-log "🔧 Installing unzip (for Kafka extraction)..."
-sudo apt-get install -y unzip
+if ! command_exists unzip; then
+  log "🔧 Installing unzip..."
+  sudo apt-get install -y unzip
+else
+  log "✅ unzip already installed"
+fi
 
-log "🔧 Installing Java (required for Kafka)..."
-sudo apt-get install -y default-jre
+if ! command_exists java; then
+  log "🔧 Installing Java (required for Kafka)..."
+  sudo apt-get install -y default-jre
+else
+  log "✅ Java already installed"
+fi
 
 KAFKA_VERSION="3.5.1"
 KAFKA_SCALA_VERSION="2.13"
@@ -63,7 +125,8 @@ fi
 log "🔧 Ensuring permissions for Kafka directory..."
 sudo chown -R $USER:$USER "$KAFKA_DIR"
 
+# Create logs directory
 log "🔧 Creating logs directory..."
-mkdir -p "$HOME/Go/src/github.com/coffeezHQ/logs"
+mkdir -p "$COFFEEZ_ROOT/logs"
 
-log "🔧 Setup complete! Please restart your terminal or run: source ~/.bashrc" 
+log "🔧 Setup complete! Please restart your terminal or run: source ~/.bashrc"
