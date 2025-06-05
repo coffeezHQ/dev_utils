@@ -1,0 +1,54 @@
+name: Test Scripts
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up environment variables
+        run: |
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> .env
+          echo "COFFEEZ_ROOT=$GITHUB_WORKSPACE" >> .env
+
+      - name: Run setup script
+        run: bash scripts/setup_ubuntu.sh
+
+      - name: Run start script
+        run: bash scripts/start_all_services.sh start
+
+      - name: Run stop script
+        run: bash scripts/start_all_services.sh stop
+
+      - name: Run reset script
+        run: bash scripts/start_all_services.sh reset
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up environment variables
+        run: |
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> .env
+          echo "COFFEEZ_ROOT=$GITHUB_WORKSPACE" >> .env
+
+      - name: Run setup script
+        run: bash scripts/setup_macos.sh
+
+      - name: Run start script
+        run: bash scripts/start_all_services.sh start
+
+      - name: Run stop script
+        run: bash scripts/start_all_services.sh stop
+
+      - name: Run reset script
+        run: bash scripts/start_all_services.sh reset 
