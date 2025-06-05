@@ -25,16 +25,36 @@ jobs:
           echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
 
       - name: Run setup script
-        run: bash scripts/setup_ubuntu.sh
+        run: |
+          bash scripts/setup_ubuntu.sh
+          if [ $? -ne 0 ]; then
+            echo "::error::Setup script failed"
+            exit 1
+          fi
 
       - name: Run start script
-        run: bash scripts/start_all_services.sh start
+        run: |
+          bash scripts/start_all_services.sh start
+          if [ $? -ne 0 ]; then
+            echo "::error::Start script failed"
+            exit 1
+          fi
 
       - name: Run stop script
-        run: bash scripts/start_all_services.sh stop
+        run: |
+          bash scripts/start_all_services.sh stop
+          if [ $? -ne 0 ]; then
+            echo "::error::Stop script failed"
+            exit 1
+          fi
 
       - name: Run reset script
-        run: bash scripts/start_all_services.sh reset
+        run: |
+          bash scripts/start_all_services.sh reset
+          if [ $? -ne 0 ]; then
+            echo "::error::Reset script failed"
+            exit 1
+          fi
 
   test-macos:
     runs-on: macos-latest
@@ -54,13 +74,33 @@ jobs:
           echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
 
       - name: Run setup script
-        run: bash scripts/setup_macos.sh
+        run: |
+          bash scripts/setup_macos.sh
+          if [ $? -ne 0 ]; then
+            echo "::error::Setup script failed"
+            exit 1
+          fi
 
       - name: Run start script
-        run: bash scripts/start_all_services.sh start
+        run: |
+          bash scripts/start_all_services.sh start
+          if [ $? -ne 0 ]; then
+            echo "::error::Start script failed"
+            exit 1
+          fi
 
       - name: Run stop script
-        run: bash scripts/start_all_services.sh stop
+        run: |
+          bash scripts/start_all_services.sh stop
+          if [ $? -ne 0 ]; then
+            echo "::error::Stop script failed"
+            exit 1
+          fi
 
       - name: Run reset script
-        run: bash scripts/start_all_services.sh reset 
+        run: |
+          bash scripts/start_all_services.sh reset
+          if [ $? -ne 0 ]; then
+            echo "::error::Reset script failed"
+            exit 1
+          fi 
