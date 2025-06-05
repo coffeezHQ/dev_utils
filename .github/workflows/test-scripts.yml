@@ -13,7 +13,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.COFFEEZ_PAT }}
+
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://${{ secrets.COFFEEZ_PAT }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Set up environment variables
+        run: |
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
+          echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
 
       - name: Install Make
         run: |
@@ -47,7 +56,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.COFFEEZ_PAT }}
+
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://${{ secrets.COFFEEZ_PAT }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Set up environment variables
+        run: |
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
+          echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
 
       - name: Install Make
         run: sudo apt-get update && sudo apt-get install -y make
