@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.COFFEEZ_PAT_PAT }}
+          token: ${{ secrets.COFFEEZ_PAT }}
           fetch-depth: 0
 
       - name: Set up environment variables
