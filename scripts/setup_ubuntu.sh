@@ -19,7 +19,7 @@ clone_repo() {
     
     if [ ! -d "$repo_path" ]; then
         log "📦 Cloning $repo_name repository..."
-        git clone "https://github.com/coffeezHQ/$repo_name.git" "$repo_path"
+        git clone "git@github.com:coffeezHQ/$repo_name.git" "$repo_path"
     else
         log "✅ $repo_name repository already exists."
     fi
