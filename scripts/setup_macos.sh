@@ -16,7 +16,11 @@ if ! command -v clickhouse &> /dev/null; then
   CLICKHOUSE_PATH=$(which clickhouse)
   if [[ -n "$CLICKHOUSE_PATH" ]]; then
     log "🔧 Removing quarantine attribute from ClickHouse binary..."
-    xattr -d com.apple.quarantine "$CLICKHOUSE_PATH"
+    if xattr -d com.apple.quarantine "$CLICKHOUSE_PATH" 2>/dev/null; then
+      log "✅ Quarantine attribute removed from ClickHouse binary."
+    else
+      log "⚠️  No quarantine attribute found on ClickHouse binary."
+    fi
     log "✅ ClickHouse installed at $CLICKHOUSE_PATH"
   else
     log "❌ ClickHouse installation failed. Please check Homebrew output."
