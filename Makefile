@@ -13,13 +13,8 @@ setup:
 	fi
 
 # Start all services
-start:
-	@echo "Starting all services..."
-	@./scripts/all_services.sh start
-
-# Start services in detached mode
 up:
-	@echo "Starting services in detached mode..."
+	@echo "Starting all services..."
 	@./scripts/all_services.sh start
 
 # Stop all services
