@@ -10,13 +10,15 @@ jobs:
   test-ubuntu:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up environment variables
         run: |
-          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> .env
-          echo "COFFEEZ_ROOT=$GITHUB_WORKSPACE" >> .env
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
+          echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
 
       - name: Run setup script
         run: bash scripts/setup_ubuntu.sh
@@ -33,13 +35,15 @@ jobs:
   test-macos:
     runs-on: macos-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up environment variables
         run: |
-          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> .env
-          echo "COFFEEZ_ROOT=$GITHUB_WORKSPACE" >> .env
+          echo "KAFKA_INSTALL_PATH=/opt/kafka" >> $GITHUB_ENV
+          echo "COFFEEZ_ROOT=./" >> $GITHUB_ENV
 
       - name: Run setup script
         run: bash scripts/setup_macos.sh
