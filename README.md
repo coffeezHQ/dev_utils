@@ -1,120 +1,129 @@
-# Dev Utils
+# Development Utilities
 
-A collection of utility scripts for development environment setup and management.
+This repository contains various utilities and scripts to help with development tasks.
 
 ## Prerequisites
 
-- macOS (tested on macOS 22.3.0) or Ubuntu (tested on Ubuntu 22.04 LTS)
-- Homebrew (for macOS)
-- Node.js (v18 or later)
-- Docker Desktop
-- Go (v1.21 or later)
+- Go 1.21 or later
+- Docker and Docker Compose
+- Make (for using Make commands)
 
 ## Quick Start
 
-1. Clone this repository:
+### Using Make Commands (Recommended)
+
+The easiest way to manage the development environment is using the provided Make commands:
+
 ```bash
-git clone git@github.com:coffeezhq/dev_utils.git
-cd dev_utils
+# Setup and start all services
+make all
+
+# Setup the development environment
+make setup
+
+# Start all services
+make start
+
+# Start services in detached mode
+make up
+
+# Stop all services
+make down
+
+# Reset the development environment
+make reset
+
+# Show available commands
+make help
 ```
 
-2. Create a `.env` file with the following content:
+### Manual Setup
+
+If you prefer to run scripts directly:
+
+1. First, run the appropriate setup script for your OS:
+   ```bash
+   # For macOS
+   ./scripts/setup_mac.sh
+
+   # For Ubuntu
+   ./scripts/setup_ubuntu.sh
+   ```
+
+2. Start all services:
+   ```bash
+   ./scripts/all_services.sh
+   ```
+
+3. To start services in detached mode:
+   ```bash
+   ./scripts/all_services.sh --detached
+   ```
+
+4. To stop all services:
+   ```bash
+   ./scripts/all_services.sh --stop
+   ```
+
+5. To reset the environment:
+   ```bash
+   ./scripts/all_services.sh --reset
+   ```
+
+## Available Scripts
+
+### `scripts/all_services.sh`
+
+This script manages all development services. It can:
+- Start all services
+- Start services in detached mode
+- Stop all services
+- Reset the environment
+
+Usage:
 ```bash
-KAFKA_INSTALL_PATH=/opt/kafka
-COFFEEZ_ROOT=$HOME/Go/src/github.com/coffeezHQ
+./scripts/all_services.sh [--detached|--stop|--reset]
 ```
 
-3. Run the setup script:
-```bash
-./scripts/start_all_services.sh setup
+### `scripts/setup_mac.sh`
+
+Sets up the development environment on macOS. This script:
+- Installs required dependencies
+- Sets up necessary configurations
+- Creates required directories
+
+### `scripts/setup_ubuntu.sh`
+
+Sets up the development environment on Ubuntu. This script:
+- Installs required dependencies
+- Sets up necessary configurations
+- Creates required directories
+
+## Directory Structure
+
 ```
-
-4. Start all services:
-```bash
-./scripts/start_all_services.sh start
+.
+├── scripts/
+│   ├── all_services.sh
+│   ├── setup_mac.sh
+│   └── setup_ubuntu.sh
+├── Makefile
+└── README.md
 ```
-
-## Available Commands
-
-### Setup Environment
-```bash
-./scripts/start_all_services.sh setup
-```
-This command will:
-- Create the COFFEEZ_ROOT directory if it doesn't exist
-- Clone all required repositories if they don't exist
-- Install required services only if they're not already installed
-- Set up necessary environment variables
-
-### Start All Services
-```bash
-./scripts/start_all_services.sh start
-```
-This command will:
-- Start MySQL
-- Start Kafka and Zookeeper
-- Start ClickHouse
-- Start Kafka Consumer
-- Run DB Migrations
-- Start Creators Studio API
-- Start Creators Studio Frontend
-
-### Stop All Services
-```bash
-./scripts/start_all_services.sh stop
-```
-This command will:
-- Stop all running services
-- Clean up any remaining processes
-
-### Reset Project Services
-```bash
-./scripts/start_all_services.sh reset
-```
-This command will:
-- Stop only project services (Kafka Consumer, DB Migrations, Creators Studio API, and Frontend)
-- Clear all logs
-- Pull latest code from all repositories
-- Restart project services with latest code
-- Install/update dependencies
-
-Note: This command does not affect infrastructure services (MySQL, Kafka, Zookeeper, ClickHouse).
-
-### Check Service Logs
-```bash
-./scripts/start_all_services.sh logs
-```
-This command will:
-- Show logs for all running services
-- Highlight any errors in red
-- Show the last 50 lines of each log file
 
 ## Troubleshooting
 
-### Common Issues
+If you encounter any issues:
 
-1. **Permission Denied**
-   - Make sure you have execute permissions on the scripts:
-   ```bash
-   chmod +x scripts/*.sh
-   ```
+1. Check if all prerequisites are installed
+2. Ensure you have the necessary permissions
+3. Try resetting the environment using `make reset` or `./scripts/all_services.sh --reset`
+4. Check the logs in the `logs` directory for any error messages
 
-2. **Port Already in Use**
-   - Check if any services are already running:
-   ```bash
-   lsof -i :<port_number>
-   ```
-   - Stop the conflicting process or use a different port
+## Contributing
 
-3. **Service Not Starting**
-   - Check the logs in the `logs/` directory
-   - Ensure all dependencies are installed
-   - Verify that required ports are available
-
-### Log Files
-
-All service logs are stored in the `logs/` directory:
-- `kafka-consumer.log`: Kafka consumer service logs
-- `db-migrations.log`: Database migration logs
-- `creators-studio-api.log`: API service logs
-- `creators-studio.log`: Frontend application logs
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
